@@ -2,26 +2,17 @@ import speech_recognition as sr
 import webbrowser
 import pyttsx3
 
-
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
-
 
 def speak(text):
     print(f"Jarvis: {text}")
     engine.say(text)
     engine.runAndWait()
     
-
-    
-
-
 if __name__ == "__main__":
     speak("Initializing Jarvis")
     speak("How may i help you")
-    
-        
-    
 
     while True:
         try:
@@ -52,7 +43,15 @@ if __name__ == "__main__":
             elif "open github" in command:
                 speak("Opening your github profile")
                 webbrowser.open("https://github.com/Thandupsherpa")
-
+                
+            elif "open drive" in command:
+                speak("Opening drive")
+                webbrowser.open("https://drive.google.com/drive/u/1/home")
+                
+            elif "open chatgpt" in command:
+                speak("opening chatgpt")
+                webbrowser.open("https://chatgpt.com/")
+                
             elif "search for" in command:
                 search_query = command.replace("search for", "").strip()
                 speak(f"Searching Google for {search_query}")
