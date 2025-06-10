@@ -4,3 +4,4 @@ pyproject.toml
 bin
 lib
 lib64
+.env

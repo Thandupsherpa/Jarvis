@@ -1,13 +1,17 @@
-import speech_recognition as sr
+import speech_recognition as sr # type: ignore
 import webbrowser
-import pyttsx3
+import pyttsx3 # type: ignore
 import musicLibrary 
 import requests
+import os
+from dotenv import load_dotenv # type: ignore
 
 
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
-newsapi = "f1dd92d834844b8f86f5441d28f9f115"
+load_dotenv()
+newsapi = os.getenv("NEWS_API_KEY")
+gemimiapi = os.getenv("GEMINI_API_KEY")
 
 def speak(text):
     print(f"Jarvis: {text}")
