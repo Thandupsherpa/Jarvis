@@ -81,6 +81,7 @@ if __name__ == "__main__":
                          for article in articles[:10]:
                              speak(article['title'])# limit to top 5
                  else:
+                     
                      speak("Sorry, I wasn't able to fetch the news.")
                      
                           
