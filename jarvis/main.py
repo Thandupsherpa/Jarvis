@@ -1,9 +1,13 @@
 import speech_recognition as sr
 import webbrowser
 import pyttsx3
+import musicLibrary 
+import requests
+
 
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
+newsapi = "f1dd92d834844b8f86f5441d28f9f115"
 
 def speak(text):
     print(f"Jarvis: {text}")
@@ -56,6 +60,35 @@ if __name__ == "__main__":
                 search_query = command.replace("search for", "").strip()
                 speak(f"Searching Google for {search_query}")
                 webbrowser.open(f"https://www.google.com/search?q={search_query}")
+                
+            elif command.lower().startswith("play"):
+                song = command.lower().split(" ")[1]
+                link = musicLibrary.music[song]
+                webbrowser.open(link)
+                
+            
+            elif "news" in command.lower():
+                 r = requests.get(f"https://newsapi.org/v2/everything?q=tesla&from=2025-05-10&sortBy=publishedAt&apiKey={newsapi}")
+   
+                 if r.status_code == 200:
+                     data = r.json()
+                     articles = data.get('articles', [])
+                     if not articles:
+                         speak("Sorry, I couldn't find any Tesla news right now.")
+            
+                     else:
+                         speak("Here are the latest Tesla news headlines.")
+                         for article in articles[:10]:
+                             speak(article['title'])# limit to top 5
+                 else:
+                     speak("Sorry, I wasn't able to fetch the news.")
+                     
+                          
+        
+            
+           
+        
+    
 
             else:
                 speak("Sorry, I don't understand that command.")
@@ -69,5 +102,6 @@ if __name__ == "__main__":
             speak("Speech recognition service is down.")
 
         except KeyboardInterrupt:
-            speak("Exiting. Goodbye!")
+            speak("Exiting. Goodbye!")  
+            
             break
