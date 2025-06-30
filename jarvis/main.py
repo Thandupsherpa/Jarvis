@@ -1,99 +1,110 @@
-import speech_recognition as sr # type: ignore
+import speech_recognition as sr  # type: ignore
 import webbrowser
-import pyttsx3 # type: ignore
-import musicLibrary 
-import requests
+import pyttsx3  # type: ignore
+import musicLibrary  # your own music dict file
 import os
-from dotenv import load_dotenv # type: ignore
+from dotenv import load_dotenv  # type: ignore
+import google.generativeai as genai
+
+# Load environment variables
+load_dotenv()
+geminiapi = os.getenv("GEMINI_API_KEY")
+
+# Initialize Gemini
+genai.configure(api_key=geminiapi)
+model = genai.GenerativeModel(model_name="models/gemini-1.5-flash")
 
 
+
+# Initialize speech engine and recognizer
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
-load_dotenv()
-newsapi = os.getenv("NEWS_API_KEY")
-gemimiapi = os.getenv("GEMINI_API_KEY")
 
 def speak(text):
     print(f"Jarvis: {text}")
     engine.say(text)
     engine.runAndWait()
-    
+
+# Use Gemini to interpret commands intelligently
+def interpret_command_with_gemini(command):
+    prompt = f"""
+    You are an assistant. Based on the user's voice command: "{command}", classify the intent as one of:
+    - open_youtube
+    - open_google
+    - open_github
+    - open_drive
+    - open_chatgpt
+    - search_google:<query>
+    - play_music:<songname>
+    - stop
+    - unknown
+
+    Just reply with the intent label only. No explanation. No formatting.
+    """
+
+    try:
+        response = model.generate_content(prompt)
+        return response.text.strip().lower()
+    except Exception as e:
+        speak("There was an error understanding your command.")
+        print(f"Gemini Error: {e}")
+        return "unknown"
+
 if __name__ == "__main__":
-    speak("Initializing Jarvis")
-    speak("How may i help you")
+    speak("Initializing Jarvis with Gemini AI")
+    speak("How may I help you?")
 
     while True:
         try:
-            
             with sr.Microphone() as source:
                 print("Listening...")
                 recognizer.adjust_for_ambient_noise(source)
                 audio = recognizer.listen(source)
 
-            
             command = recognizer.recognize_google(audio)
             print(f"You said: {command}")
             command = command.lower()
 
-            
-            if "stop" in command or "exit" in command:
+            # Get intent using Gemini
+            result = interpret_command_with_gemini(command)
+
+            if result == "stop" or result == "exit":
                 speak("Goodbye!")
                 break
 
-            elif "open youtube" in command:
+            elif result == "open_youtube":
                 speak("Opening YouTube")
                 webbrowser.open("https://www.youtube.com")
 
-            elif "open google" in command:
+            elif result == "open_google":
                 speak("Opening Google")
                 webbrowser.open("https://www.google.com")
-                
-            elif "open github" in command:
-                speak("Opening your github profile")
+
+            elif result == "open_github":
+                speak("Opening your GitHub profile")
                 webbrowser.open("https://github.com/Thandupsherpa")
-                
-            elif "open drive" in command:
-                speak("Opening drive")
+
+            elif result == "open_drive":
+                speak("Opening Drive")
                 webbrowser.open("https://drive.google.com/drive/u/1/home")
-                
-            elif "open chatgpt" in command:
-                speak("opening chatgpt")
+
+            elif result == "open_chatgpt":
+                speak("Opening ChatGPT")
                 webbrowser.open("https://chatgpt.com/")
-                
-            elif "search for" in command:
-                search_query = command.replace("search for", "").strip()
-                speak(f"Searching Google for {search_query}")
-                webbrowser.open(f"https://www.google.com/search?q={search_query}")
-                
-            elif command.lower().startswith("play"):
-                song = command.lower().split(" ")[1]
-                link = musicLibrary.music[song]
-                webbrowser.open(link)
-                
-            
-            elif "news" in command.lower():
-                 r = requests.get(f"https://newsapi.org/v2/everything?q=tesla&from=2025-05-10&sortBy=publishedAt&apiKey={newsapi}")
-   
-                 if r.status_code == 200:
-                     data = r.json()
-                     articles = data.get('articles', [])
-                     if not articles:
-                         speak("Sorry, I couldn't find any Tesla news right now.")
-            
-                     else:
-                         speak("Here are the latest Tesla news headlines.")
-                         for article in articles[:10]:
-                             speak(article['title'])# limit to top 5
-                 else:
-                     
-                     speak("Sorry, I wasn't able to fetch the news.")
-                     
-                          
-        
-            
-           
-        
-    
+
+            elif result.startswith("search_google:"):
+                query = result.split(":", 1)[1].strip()
+                speak(f"Searching Google for {query}")
+                webbrowser.open(f"https://www.google.com/search?q={query}")
+
+            elif result.startswith("play_music:"):
+                song = result.split(":", 1)[1].strip()
+                link = musicLibrary.music.get(song)
+                if link:
+                    speak(f"Playing {song}")
+                    webbrowser.open(link)
+                else:
+                    speak("Sorry, I couldn't find that song.")
 
             else:
                 speak("Sorry, I don't understand that command.")
@@ -107,6 +118,5 @@ if __name__ == "__main__":
             speak("Speech recognition service is down.")
 
         except KeyboardInterrupt:
-            speak("Exiting. Goodbye!")  
-            
+            speak("Exiting. Goodbye!")
             break
