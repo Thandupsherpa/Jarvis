@@ -9,23 +9,22 @@ import tkinter as tk
 from tkinter import scrolledtext
 from threading import Thread
 
-# Load env
+
 load_dotenv()
 geminiapi = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=geminiapi)
 model = genai.GenerativeModel(model_name="models/gemini-1.5-flash")
 
-# Initialize speech
+
 recognizer = sr.Recognizer()
 engine = pyttsx3.init()
 
-# Speak function
+
 def speak(text):
     log(f"Jarvis: {text}")
     engine.say(text)
     engine.runAndWait()
 
-# Interpret voice using Gemini
 def interpret_command_with_gemini(command):
     prompt = f"""
     You are an assistant. Based on the user's voice command: "{command}", classify the intent as one of:
@@ -49,12 +48,10 @@ def interpret_command_with_gemini(command):
         log(f"Gemini Error: {e}")
         return "unknown"
 
-# Log output to GUI
 def log(message):
     log_box.insert(tk.END, f"{message}\n")
     log_box.see(tk.END)
 
-# Process voice command
 def process_voice():
     status_label.config(text="Listening...")
     try:
@@ -115,24 +112,24 @@ def process_voice():
     finally:
         status_label.config(text="Ready")
 
-# Background thread to avoid GUI freeze
+
 def start_listening():
     Thread(target=process_voice).start()
 
-# GUI setup
-root = tk.Tk()
-root.title("Jarvis Assistant (GUI + Voice)")
-root.geometry("500x400")
 
-status_label = tk.Label(root, text="Ready", font=("Helvetica", 14))
+root = tk.Tk()
+root.title("Jarvis Assistant")
+root.geometry("1000x800")
+
+status_label = tk.Label(root, text="", font=("Helvetica", 14))
 status_label.pack(pady=10)
 
-listen_button = tk.Button(root, text="🎙️ Start Listening", command=start_listening, font=("Helvetica", 12), bg="#4CAF50", fg="white")
+listen_button = tk.Button(root, text="Start Listening", command=start_listening, font=("Helvetica", 12), bg="#4CAF50", fg="white")
 listen_button.pack(pady=10)
 
-log_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=60, height=15, font=("Courier", 10))
+log_box = scrolledtext.ScrolledText(root, wrap=tk.WORD, width=80, height=60, font=("Courier", 10))
 log_box.pack(pady=10)
 
-# Start GUI
-speak("Jarvis with GUI is ready!")
+
+speak("What can i do for you today?")
 root.mainloop()
