@@ -1,10 +1,10 @@
-import speech_recognition as sr
+import speech_recognition as sr # type: ignore
 import webbrowser
-import pyttsx3
+import pyttsx3 # type: ignore
 import musicLibrary
 import os
-from dotenv import load_dotenv
-import google.generativeai as genai
+from dotenv import load_dotenv # type: ignore
+import google.generativeai as genai # type: ignore
 import tkinter as tk
 from tkinter import scrolledtext
 from threading import Thread
